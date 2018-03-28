@@ -1,3 +1,6 @@
+import java.util.List;
+import java.util.ArrayList;
+
 import frames.timing.*;
 import frames.primitives.*;
 import frames.processing.*;
@@ -22,7 +25,7 @@ String renderer = P3D;
 
 void setup() {
   //use 2^n to change the dimensions
-  size(512, 512, renderer);
+  size(1024, 1024, renderer);
   scene = new Scene(this);
   if (scene.is3D())
     scene.setType(Scene.Type.ORTHOGRAPHIC);
@@ -76,14 +79,15 @@ void triangleRaster() {
   if (debug) {
     pushStyle();
     noStroke();
-    fill(255, 255, 0, 125);
-    //Vector v4;
     
     int potencia = (int)Math.pow(2, n-1);
     for(int i = - potencia; i <= potencia; i++){
       for(int j = - potencia; j <= potencia; j++){
-        if( testSide(i,j) )
+        List<Float>  baricentric = getBaricentricCoords(i,j);
+        if( testSide(baricentric) ){
+          getFill(baricentric);
           rect(i - 0.5, j - 0.5, 1, 1);
+        }
       }
     }
     
@@ -151,7 +155,18 @@ void keyPressed() {
   if (key == 'y')
     yDirection = !yDirection;
 }
-boolean testSide(float x , float y) {
+
+void getFill(List<Float> baricentric) {
+  List<Float> components = new ArrayList<Float>();
+  float sum = 0;
+  for(float x : baricentric) sum += Math.abs(x);
+  for(float x : baricentric){
+    components.add( 255 * Math.abs(x)/sum );
+  }
+  fill(components.get(0), components.get(1), components.get(2));
+}
+
+List<Float> getBaricentricCoords(float x , float y){
       float ax = frame.coordinatesOf(v1).x();
       float ay = frame.coordinatesOf(v1).y();
       
@@ -161,12 +176,18 @@ boolean testSide(float x , float y) {
       float cx = frame.coordinatesOf(v3).x();
       float cy = frame.coordinatesOf(v3).y();
       
+      List<Float> ans = new ArrayList<Float>();
       // a -> b      
-      float t1 = (( bx - ax) * ( y - ay)) - ((x - ax) * (by - ay));
+      ans.add( ((bx - ax) * ( y - ay)) - ((x - ax) * (by - ay)) );
       // b -> c
-      float t2 = ((cx - bx) * (y - by)) - ((x - bx) * (cy - by));
+      ans.add( ((cx - bx) * (y - by)) - ((x - bx) * (cy - by)) );
       // c -> a
-      float t3 = ((ax - cx) * (y - cy)) - ((x - cx) * (ay - cy));
+      ans.add( ((ax - cx) * (y - cy)) - ((x - cx) * (ay - cy)) );
 
-      return (t2>0 && t3>0 && t1>0) || (t2<0 && t3<0 && t1<0);
-  }
+      return ans;
+}
+
+boolean testSide(List<Float> coords) {
+    return (coords.get(1)>0 && coords.get(2)>0 && coords.get(0)>0)
+        || (coords.get(1)<0 && coords.get(2)<0 && coords.get(0)<0);
+}
