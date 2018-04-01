@@ -23,6 +23,8 @@ boolean debug = true;
 // 3. Use FX2D, JAVA2D, P2D or P3D
 String renderer = P3D;
 
+float subDiv = 4;
+
 void setup() {
   //use 2^n to change the dimensions
   size(1024, 1024, renderer);
@@ -78,16 +80,39 @@ void triangleRaster() {
   // here we convert v1 to illustrate the idea
   if (debug) {
     pushStyle();
-    noStroke();
+    // noStroke();
     
+    
+
     int potencia = (int)Math.pow(2, n-1);
     for(int i = - potencia; i <= potencia; i++){
       for(int j = - potencia; j <= potencia; j++){
         List<Float>  baricentric = getBaricentricCoords(i,j);
-        if( testSide(baricentric) ){
-          getFill(baricentric);
-          rect(i - 0.5, j - 0.5, 1, 1);
+        // if( testSide(baricentric) ){
+        
+        float[] components = {0, 0, 0};
+
+        for (float k = -0.5; k < 0.5; k += 1/subDiv) {
+          for (float l = -0.5 ; l < 0.5; l += 1/subDiv) {
+            List<Float>  subBaricentric = getBaricentricCoords(i + k, j + l);
+            if( testSide(subBaricentric) ){
+              float sum = 0;
+              for(float x : baricentric) sum += Math.abs(x);
+              for(int m = 0; m < 3; m++){
+                components[m] += ( 255 * Math.abs( baricentric.get(m) ) / sum );
+              }      
+            }
+          }
         }
+        
+        stroke(
+            components[0] / pow(subDiv, 2),
+            components[1] / pow(subDiv, 2), 
+            components[2] / pow(subDiv, 2) );
+
+        // rect(i , j , 1, 1);
+        point(i,j);
+
       }
     }
     
@@ -154,6 +179,13 @@ void keyPressed() {
       spinningTask.run(20);
   if (key == 'y')
     yDirection = !yDirection;
+  if(key == 'm'){
+    subDiv += 1;
+    print(subDiv);
+  }
+  if(key == 'n')
+    subDiv -= 1;
+    print(subDiv);
 }
 
 void getFill(List<Float> baricentric) {
