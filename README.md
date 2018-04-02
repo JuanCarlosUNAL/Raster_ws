@@ -22,11 +22,28 @@ Complete la tabla:
 
 | Integrante | github nick |
 |------------|-------------|
-|            |             |
+|Andres Rondon| [amrondonp](https://github.com/amrondonp)             |
+|Raul Ramirez| [raulramirezp](https://github.com/raulramirezp)             |
+|Juan Carlos Gama| [JuanCarlosUNAL](https://github.com/JuanCarlosUNAL)             |
 
 ## Discusión
 
-Describa los resultados obtenidos. Qué técnicas de anti-aliasing y shading se exploraron? Adjunte las referencias. Discuta las dificultades encontradas.
+Resultados:
+
+Se logró rasterizar un triángulo correctamente haciendo 
+uso de las coordenadas baricéntricas. Además, se 
+implementó un algoritmo de antialiasing el cual 
+divide un pixel en 4, 16 y 64 regiones, toma el 
+promedio de píxeles de color y regula la intensidad 
+del color, permitiendo pintar de una manera más suave 
+los bordes del triángulo. Finalmente, se probaron dos algoritmos
+de shading, ambos haciendo uso de las coordenadas baricéntricas para
+determinar la cantidad de color en un punto dado. El primer
+algoritmo, hacía que el centro del triángulo fuera negro, y el segundo
+algoritmo (y el elegido) fue aquel que pintaba de blanco el centro geométrico
+del triángulo y variando la intensidad de un color a medida de que se acercara a un vértice   Los resultados fueron satisfactorios y se ilustran en la siguiente imagen
+
+![Resultado](image1.png)
 
 ## Entrega
 
